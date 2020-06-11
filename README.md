@@ -15,7 +15,7 @@ To start the project:
   
   
 
-run command
+run commands
 
   _create schema YOUR_DATABASE_NAME;_
  
@@ -24,7 +24,7 @@ run command
 
 
 
-edit application.properties file according to your data base setting
+edit application.properties file according to your database setting
 
 default DATABASE_LOCATION: localhost
 
