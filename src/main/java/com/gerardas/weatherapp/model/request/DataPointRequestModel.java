@@ -2,16 +2,10 @@ package com.gerardas.weatherapp.model.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import java.util.Map;
 
-//@Entity
 public class DataPointRequestModel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private Double lon;

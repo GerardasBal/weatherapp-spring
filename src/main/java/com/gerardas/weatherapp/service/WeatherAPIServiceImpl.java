@@ -1,7 +1,9 @@
 package com.gerardas.weatherapp.service;
 
 import com.gerardas.weatherapp.model.request.DataPointRequestModel;
-import com.gerardas.weatherapp.service.DataPointService;
+import com.gerardas.weatherapp.util.DataPointParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -9,12 +11,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class WeatherAPIService {
+public class WeatherAPIServiceImpl implements WeatherApiService {
+
+    Logger logger = LoggerFactory.getLogger(WeatherApiService.class);
 
 
     private Boolean callLimitReached = false;
@@ -31,41 +37,51 @@ public class WeatherAPIService {
         this.dataPointService = dataPointService;
     }
 
-
     @Autowired
     public void setRestTemplate(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
     }
 
-
+    @Override
     @Scheduled(fixedRate = 1000 * 60 * 60)
-    void updateDatabase() {
-        LocalDateTime latestDateInDB = dataPointService.findLatestDate();
+    public void updateDatabase() {
 
-        LocalDateTime date = LocalDateTime.now().minusMinutes(90);
+        LocalDateTime latestDateInDB;
+        if (dataPointService.getCount() == 0) {
+            latestDateInDB = LocalDateTime.of(LocalDate.now(), LocalTime.MIN).minusMonths(2);
+        } else {
+            latestDateInDB = dataPointService.findLatestDate();
+        }
+
         if (callLimitReachedTimeStamp.isBefore(LocalDateTime.now().minusMinutes(30))) {
             callLimitReached = false;
         }
-        System.out.println("Latest in DB before update: " + latestDateInDB);
+
         LocalDateTime latestDateInDBOld = latestDateInDB.minusHours(1);
-        while (latestDateInDB.isBefore(date) && !callLimitReached && !latestDateInDB.isEqual(latestDateInDBOld)) {
-            List<DataPointRequestModel> dataPointRequestModels = fetchDataFromWeatherAPI(latestDateInDB);
+        String updateMessage = "";
+        while (!callLimitReached && !latestDateInDB.isEqual(latestDateInDBOld)) {
+            List<DataPointRequestModel> dataPointRequestModels = fetchVilniusHistoryDataFromWeatherAPI(latestDateInDB);
             if (dataPointRequestModels != null) {
                 dataPointService.addDataPoints(
-                        dataPointService.parseDataPoints(dataPointRequestModels));
-                System.out.println("Updated!");
+                        DataPointParser.parseDataPoints(dataPointRequestModels));
+                updateMessage = "Database updated.";
+            } else {
+                updateMessage = "Database already Up-to-date";
             }
-
             latestDateInDBOld = latestDateInDB;
             latestDateInDB = dataPointService.findLatestDate();
+            logger.info("Updating database... Latest data point time: " + latestDateInDB);
         }
-        System.out.println("Latest dataPoint time in DB: " + latestDateInDB + " Limit reached:" + callLimitReached);
-        System.out.println("Limit Reach time: " + callLimitReachedTimeStamp);
-        System.out.println("Now: " + LocalDateTime.now());
-        System.out.println("------------------------------------");
+        if(callLimitReached){
+            logger.warn("Call limit reached at: " + callLimitReachedTimeStamp + ". Latest data point time: " + latestDateInDB);
+        } else {
+            logger.info(updateMessage + " Latest data point time: " + latestDateInDB);
+        }
     }
 
-    List<DataPointRequestModel> fetchDataFromWeatherAPI(LocalDateTime latestDateInDB) {
+    @Override
+    public List<DataPointRequestModel> fetchVilniusHistoryDataFromWeatherAPI(LocalDateTime latestDateInDB) {
+
         String apiUrl = "https://api.climacell.co/v3/weather/historical/station";
 
         String apiKey = "uY5089LCgIWqTzQQOnoQ4Bvg94AwF7Np";
@@ -109,7 +125,6 @@ public class WeatherAPIService {
         } catch (HttpClientErrorException e) {
             callLimitReached = true;
             callLimitReachedTimeStamp = LocalDateTime.now();
-            System.out.println(e);
         }
         return null;
     }

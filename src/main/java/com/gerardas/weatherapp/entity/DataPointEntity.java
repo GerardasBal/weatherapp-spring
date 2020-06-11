@@ -1,11 +1,7 @@
 package com.gerardas.weatherapp.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Map;
 
 @Entity
 public class DataPointEntity {

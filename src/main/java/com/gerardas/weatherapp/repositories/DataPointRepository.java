@@ -3,11 +3,9 @@ package com.gerardas.weatherapp.repositories;
 import com.gerardas.weatherapp.entity.DataPointEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -20,10 +18,11 @@ public interface DataPointRepository extends CrudRepository<DataPointEntity, Lon
     @Query("select max(a.observationTimeValue) from DataPointEntity a")
     LocalDateTime findLatestDate();
 
-    @Query("select min(a.observationTimeValue), max(a.observationTimeValue) from DataPointEntity a")
-    LocalDateTime findOldestDateAndLatestDates();
-
     @Query("select min(a.observationTimeValue) from DataPointEntity a")
-    LocalDateTime getObservationTimeMin();
+    LocalDateTime findObservationTimeMin();
+
+    @Query("select count(a) from DataPointEntity a")
+    Integer getCount();
+
 
 }
