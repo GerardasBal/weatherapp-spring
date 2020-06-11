@@ -24,7 +24,7 @@ run commands
 
 
 
-edit application.properties file according to your database setting
+edit _application.properties_ file under _src/main/resources_ according to your database setting
 
 default DATABASE_LOCATION: localhost
 
