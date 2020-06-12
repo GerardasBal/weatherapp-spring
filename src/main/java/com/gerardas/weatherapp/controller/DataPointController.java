@@ -11,6 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.*;
 import java.util.*;
 
+/**
+ * Rest controller for DataPoint information fetching.
+ *
+ *
+ *
+ */
 @RestController
 public class DataPointController {
 
@@ -21,7 +27,15 @@ public class DataPointController {
         this.dataPointService = dataPointService;
     }
 
-
+    /**
+     * Listens for /points/month GET requests. And returns data points for specified month.
+     *
+     * @param selectedYear string type of the selected year
+     * @param selectedMonth string type of the selected month
+     *
+     * @return Json representation of dataPoints array
+     *
+     */
     @GetMapping("/points/month")
     public ResponseEntity<List<DataPointEntity>> getAllPoints(@RequestParam String selectedYear, @RequestParam String selectedMonth) {
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -32,7 +46,17 @@ public class DataPointController {
                 .body(dataPointService.getDataPointsByMonth(selectedYear, selectedMonth));
     }
 
-
+    /**
+     * Listens for /points GET requests. And returns data points for specified day.
+     *
+     * @param selectedYear string type of the selected year
+     * @param selectedMonth string type of the selected month
+     * @param selectedDay string type of the selected day
+     *
+     *
+     * @return Json representation of dataPoints array
+     *
+     */
     @GetMapping("/points")
     public ResponseEntity<List<DataPointEntity>> getPointsByDate(@RequestParam String selectedYear, @RequestParam String selectedMonth, @RequestParam String selectedDay) {
 
@@ -45,6 +69,16 @@ public class DataPointController {
                 .body(dataPointService.getPointsByDate(selectedDate));
     }
 
+
+    /**
+     * Listens for /points/dates GET requests.
+     * And returns array of the lowest and highest
+     * data point times recorded in database.
+     *
+     *
+     * @return Json array of to dates
+     *
+     */
     @GetMapping("/points/dates")
     public ResponseEntity<LocalDateTime[]> getOldestAndLatestDates(){
         HttpHeaders responseHeaders = new HttpHeaders();

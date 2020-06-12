@@ -3,6 +3,15 @@ package com.gerardas.weatherapp.entity;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ *
+ *
+ * The {@code DataPointEntity} class represents data point of the weather observation.
+ *
+ *
+ *
+ */
+
 @Entity
 public class DataPointEntity {
 
