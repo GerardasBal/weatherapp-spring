@@ -6,6 +6,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import static spark.Spark.*;
+
 @SpringBootApplication
 @EnableScheduling
 public class WeatherappApplication extends SpringBootServletInitializer {
@@ -17,6 +19,7 @@ public class WeatherappApplication extends SpringBootServletInitializer {
 
 
     public static void main(String[] args) {
+        staticFiles.location("/static");
         SpringApplication.run(WeatherappApplication.class, args);
     }
 
